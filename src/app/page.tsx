@@ -1,19 +1,18 @@
-import { Button } from "@/components/ui/button";
-import { client, db } from "@/db";
+import { db } from "@/db";
 import { usersTable } from "@/db/schema";
-
+import { HydrateClient, trpc } from "@/trpc/server";
+import TestComponent from "./test-comp";
 
 export default async function Home() {
+  void trpc.hello.prefetch({
+    text: "Ray",
+  });
   const users = await db.select().from(usersTable);
-  console.log('Getting all users from the database: ', users)
-  
+  console.log("Getting all users from the database: ", users);
 
-return (
-  <div className="bg-teal-300 h-40 w-full">
-    <Button variant="ghost">
-    Hi
-    </Button>
-     
-  </div>
-);
+  return (
+    <HydrateClient>
+      <TestComponent></TestComponent>
+    </HydrateClient>
+  );
 }
