@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { items, onlineOrderItems, onlineOrders, suppliers, purchaseOrders, purchaseOrderItems, salesItems, sales } from "./schema";
+import { items, onlineOrderItems, onlineOrders, purchaseOrderItems, purchaseOrders, salesItems, sales, suppliers } from "./schema";
 
 export const onlineOrderItemsRelations = relations(onlineOrderItems, ({one}) => ({
 	item: one(items, {
@@ -22,18 +22,6 @@ export const onlineOrdersRelations = relations(onlineOrders, ({many}) => ({
 	onlineOrderItems: many(onlineOrderItems),
 }));
 
-export const purchaseOrdersRelations = relations(purchaseOrders, ({one, many}) => ({
-	supplier: one(suppliers, {
-		fields: [purchaseOrders.pOrderSupplier],
-		references: [suppliers.id]
-	}),
-	purchaseOrderItems: many(purchaseOrderItems),
-}));
-
-export const suppliersRelations = relations(suppliers, ({many}) => ({
-	purchaseOrders: many(purchaseOrders),
-}));
-
 export const purchaseOrderItemsRelations = relations(purchaseOrderItems, ({one}) => ({
 	item: one(items, {
 		fields: [purchaseOrderItems.poiItemId],
@@ -42,6 +30,14 @@ export const purchaseOrderItemsRelations = relations(purchaseOrderItems, ({one})
 	purchaseOrder: one(purchaseOrders, {
 		fields: [purchaseOrderItems.poiPurchaseOrderId],
 		references: [purchaseOrders.id]
+	}),
+}));
+
+export const purchaseOrdersRelations = relations(purchaseOrders, ({one, many}) => ({
+	purchaseOrderItems: many(purchaseOrderItems),
+	supplier: one(suppliers, {
+		fields: [purchaseOrders.pOrderSupplier],
+		references: [suppliers.id]
 	}),
 }));
 
@@ -58,4 +54,8 @@ export const salesItemsRelations = relations(salesItems, ({one}) => ({
 
 export const salesRelations = relations(sales, ({many}) => ({
 	salesItems: many(salesItems),
+}));
+
+export const suppliersRelations = relations(suppliers, ({many}) => ({
+	purchaseOrders: many(purchaseOrders),
 }));

@@ -222,6 +222,12 @@ export const items = pgTable(
       .notNull()
       .defaultNow(),
     itemQty: numeric("item_qty", { precision: 8, scale: 2 }).notNull(),
+    itemThresholdQty: numeric("item_threshold_qty", {
+      precision: 8,
+      scale: 2,
+    })
+      .notNull()
+      .default("5"),
   },
   (table) => [
     index("items_item_name_index").using(

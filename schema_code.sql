@@ -1,3 +1,6 @@
+-- NOTE: This is the code from diagram to Code
+--  I have made minor tweaks to it in the db/schmea.ts file
+
 CREATE TABLE "Items"(
     "id" UUID NOT NULL,
     "item_name" TEXT NOT NULL,
