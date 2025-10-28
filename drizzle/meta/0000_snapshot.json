@@ -1,0 +1,662 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.Online_Orders": {
+      "name": "Online_Orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "oo_amount": {
+          "name": "oo_amount",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oo_customer_name": {
+          "name": "oo_customer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oo_customer_contact": {
+          "name": "oo_customer_contact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oo_delivery_status": {
+          "name": "oo_delivery_status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "oo_confirmation": {
+          "name": "oo_confirmation",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "oo_created_at": {
+          "name": "oo_created_at",
+          "type": "timestamp(0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oo_delivery_date": {
+          "name": "oo_delivery_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "online_orders_oo_delivery_status_index": {
+          "name": "online_orders_oo_delivery_status_index",
+          "columns": [
+            {
+              "expression": "oo_delivery_status",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "Online_Orders_oo_confirmation_check": {
+          "name": "Online_Orders_oo_confirmation_check",
+          "value": "(oo_confirmation)::text = ANY ((ARRAY['pending'::character varying, 'confirmed'::character varying])::text[])"
+        },
+        "Online_Orders_oo_delivery_status_check": {
+          "name": "Online_Orders_oo_delivery_status_check",
+          "value": "(oo_delivery_status)::text = ANY ((ARRAY['canceled'::character varying, 'pending'::character varying, 'delivered'::character varying])::text[])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Online_Order_Items": {
+      "name": "Online_Order_Items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ooi_online_order_id": {
+          "name": "ooi_online_order_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ooi_item_id": {
+          "name": "ooi_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ooi_item_cost": {
+          "name": "ooi_item_cost",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ooi_item_qty": {
+          "name": "ooi_item_qty",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "online_order_items_ooi_item_id_foreign": {
+          "name": "online_order_items_ooi_item_id_foreign",
+          "tableFrom": "Online_Order_Items",
+          "tableTo": "Items",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "ooi_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "online_order_items_ooi_online_order_id_foreign": {
+          "name": "online_order_items_ooi_online_order_id_foreign",
+          "tableFrom": "Online_Order_Items",
+          "tableTo": "Online_Orders",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "ooi_online_order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Purchase_Orders": {
+      "name": "Purchase_Orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "p_order_supplier": {
+          "name": "p_order_supplier",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_order_amount": {
+          "name": "p_order_amount",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_order_payment_status": {
+          "name": "p_order_payment_status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'not_paid'"
+        },
+        "p_order_bill_imageUrl": {
+          "name": "p_order_bill_imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_order_payment_method": {
+          "name": "p_order_payment_method",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'cash'"
+        },
+        "p_order_payment_date": {
+          "name": "p_order_payment_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_order_payment_imageUrl": {
+          "name": "p_order_payment_imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_order_created_at": {
+          "name": "p_order_created_at",
+          "type": "timestamp(0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_order_amount_paid": {
+          "name": "p_order_amount_paid",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        }
+      },
+      "indexes": {
+        "purchase_orders_p_order_payment_status_index": {
+          "name": "purchase_orders_p_order_payment_status_index",
+          "columns": [
+            {
+              "expression": "p_order_payment_status",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "purchase_orders_p_order_supplier_foreign": {
+          "name": "purchase_orders_p_order_supplier_foreign",
+          "tableFrom": "Purchase_Orders",
+          "tableTo": "Suppliers",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "p_order_supplier"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "Purchase_Orders_p_order_payment_method_check": {
+          "name": "Purchase_Orders_p_order_payment_method_check",
+          "value": "(p_order_payment_method)::text = ANY ((ARRAY['cash'::character varying, 'upi'::character varying])::text[])"
+        },
+        "Purchase_Orders_p_order_payment_status_check": {
+          "name": "Purchase_Orders_p_order_payment_status_check",
+          "value": "(p_order_payment_status)::text = ANY ((ARRAY['fully_paid'::character varying, 'not_paid'::character varying, 'partial_paid'::character varying])::text[])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Purchase_Order_Items": {
+      "name": "Purchase_Order_Items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "poi_purchase_order_id": {
+          "name": "poi_purchase_order_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poi_item_id": {
+          "name": "poi_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poi_item_qty": {
+          "name": "poi_item_qty",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poi_per_item_cost": {
+          "name": "poi_per_item_cost",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poi_total_cost": {
+          "name": "poi_total_cost",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "purchase_order_items_poi_item_id_foreign": {
+          "name": "purchase_order_items_poi_item_id_foreign",
+          "tableFrom": "Purchase_Order_Items",
+          "tableTo": "Items",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "poi_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "purchase_order_items_poi_purchase_order_id_foreign": {
+          "name": "purchase_order_items_poi_purchase_order_id_foreign",
+          "tableFrom": "Purchase_Order_Items",
+          "tableTo": "Purchase_Orders",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "poi_purchase_order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Sales": {
+      "name": "Sales",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sales_amount": {
+          "name": "sales_amount",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sales_date": {
+          "name": "sales_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sales_created_at": {
+          "name": "sales_created_at",
+          "type": "timestamp(0)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "sales_sales_date_index": {
+          "name": "sales_sales_date_index",
+          "columns": [
+            {
+              "expression": "sales_date",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "date_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Sales_items": {
+      "name": "Sales_items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "si_sales_id": {
+          "name": "si_sales_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "si_item_id": {
+          "name": "si_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "si_sale_price": {
+          "name": "si_sale_price",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "si_item_qty": {
+          "name": "si_item_qty",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sales_items_si_item_id_foreign": {
+          "name": "sales_items_si_item_id_foreign",
+          "tableFrom": "Sales_items",
+          "tableTo": "Items",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "si_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sales_items_si_sales_id_foreign": {
+          "name": "sales_items_si_sales_id_foreign",
+          "tableFrom": "Sales_items",
+          "tableTo": "Sales",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "si_sales_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Items": {
+      "name": "Items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_min_price": {
+          "name": "item_min_price",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_max_price": {
+          "name": "item_max_price",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_usecase": {
+          "name": "item_usecase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_location": {
+          "name": "item_location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_current_avg_cost": {
+          "name": "item_current_avg_cost",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_image_url": {
+          "name": "item_image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "item_qr_code": {
+          "name": "item_qr_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "item_unit_type": {
+          "name": "item_unit_type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'piece'"
+        },
+        "item_alternative_names": {
+          "name": "item_alternative_names",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::json"
+        },
+        "item_created_at": {
+          "name": "item_created_at",
+          "type": "timestamp(0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_updated_at": {
+          "name": "item_updated_at",
+          "type": "timestamp(0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_qty": {
+          "name": "item_qty",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "items_item_name_index": {
+          "name": "items_item_name_index",
+          "columns": [
+            {
+              "expression": "item_name",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "Items_item_unit_type_check": {
+          "name": "Items_item_unit_type_check",
+          "value": "(item_unit_type)::text = ANY ((ARRAY['piece'::character varying, 'weight'::character varying])::text[])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.Suppliers": {
+      "name": "Suppliers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "supplier_name": {
+          "name": "supplier_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supplier_items_supplied": {
+          "name": "supplier_items_supplied",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supplier_contact": {
+          "name": "supplier_contact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {}
+  }
+}

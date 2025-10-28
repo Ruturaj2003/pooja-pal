@@ -9,7 +9,7 @@ const TestComponent = () => {
   if (!greeting.data) return <div>Loading...</div>;
 
   const testy = trpc.dotex.useQuery();
-  console.log(testy);
+
 
   return (
     <div>

@@ -1,0 +1,135 @@
+import { pgTable, index, check, uuid, numeric, text, varchar, timestamp, date, foreignKey, json } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
+
+
+
+export const onlineOrders = pgTable("Online_Orders", {
+	id: uuid().primaryKey().notNull(),
+	ooAmount: numeric("oo_amount", { precision: 8, scale:  2 }).notNull(),
+	ooCustomerName: text("oo_customer_name").notNull(),
+	ooCustomerContact: text("oo_customer_contact").notNull(),
+	ooDeliveryStatus: varchar("oo_delivery_status", { length: 255 }).default('pending').notNull(),
+	ooConfirmation: varchar("oo_confirmation", { length: 255 }).default('pending'),
+	ooCreatedAt: timestamp("oo_created_at", { mode: 'string' }).notNull(),
+	ooDeliveryDate: date("oo_delivery_date").notNull(),
+}, (table) => [
+	index("online_orders_oo_delivery_status_index").using("btree", table.ooDeliveryStatus.asc().nullsLast().op("text_ops")),
+	check("Online_Orders_oo_confirmation_check", sql`(oo_confirmation)::text = ANY ((ARRAY['pending'::character varying, 'confirmed'::character varying])::text[])`),
+	check("Online_Orders_oo_delivery_status_check", sql`(oo_delivery_status)::text = ANY ((ARRAY['canceled'::character varying, 'pending'::character varying, 'delivered'::character varying])::text[])`),
+]);
+
+export const onlineOrderItems = pgTable("Online_Order_Items", {
+	id: uuid().primaryKey().notNull(),
+	ooiOnlineOrderId: uuid("ooi_online_order_id").notNull(),
+	ooiItemId: uuid("ooi_item_id").notNull(),
+	ooiItemCost: numeric("ooi_item_cost", { precision: 8, scale:  2 }).notNull(),
+	ooiItemQty: numeric("ooi_item_qty", { precision: 8, scale:  2 }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.ooiItemId],
+			foreignColumns: [items.id],
+			name: "online_order_items_ooi_item_id_foreign"
+		}),
+	foreignKey({
+			columns: [table.ooiOnlineOrderId],
+			foreignColumns: [onlineOrders.id],
+			name: "online_order_items_ooi_online_order_id_foreign"
+		}),
+]);
+
+export const purchaseOrders = pgTable("Purchase_Orders", {
+	id: uuid().primaryKey().notNull(),
+	pOrderSupplier: uuid("p_order_supplier").notNull(),
+	pOrderAmount: numeric("p_order_amount", { precision: 8, scale:  2 }).notNull(),
+	pOrderPaymentStatus: varchar("p_order_payment_status", { length: 255 }).default('not_paid').notNull(),
+	pOrderBillImageUrl: text("p_order_bill_imageUrl"),
+	pOrderPaymentMethod: varchar("p_order_payment_method", { length: 255 }).default('cash').notNull(),
+	pOrderPaymentDate: date("p_order_payment_date"),
+	pOrderPaymentImageUrl: text("p_order_payment_imageUrl"),
+	pOrderCreatedAt: timestamp("p_order_created_at", { mode: 'string' }).notNull(),
+	pOrderAmountPaid: numeric("p_order_amount_paid", { precision: 8, scale:  2 }).default('0').notNull(),
+}, (table) => [
+	index("purchase_orders_p_order_payment_status_index").using("btree", table.pOrderPaymentStatus.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.pOrderSupplier],
+			foreignColumns: [suppliers.id],
+			name: "purchase_orders_p_order_supplier_foreign"
+		}),
+	check("Purchase_Orders_p_order_payment_method_check", sql`(p_order_payment_method)::text = ANY ((ARRAY['cash'::character varying, 'upi'::character varying])::text[])`),
+	check("Purchase_Orders_p_order_payment_status_check", sql`(p_order_payment_status)::text = ANY ((ARRAY['fully_paid'::character varying, 'not_paid'::character varying, 'partial_paid'::character varying])::text[])`),
+]);
+
+export const purchaseOrderItems = pgTable("Purchase_Order_Items", {
+	id: uuid().primaryKey().notNull(),
+	poiPurchaseOrderId: uuid("poi_purchase_order_id").notNull(),
+	poiItemId: uuid("poi_item_id").notNull(),
+	poiItemQty: numeric("poi_item_qty", { precision: 8, scale:  2 }).notNull(),
+	poiPerItemCost: numeric("poi_per_item_cost", { precision: 8, scale:  2 }).notNull(),
+	poiTotalCost: numeric("poi_total_cost", { precision: 8, scale:  2 }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.poiItemId],
+			foreignColumns: [items.id],
+			name: "purchase_order_items_poi_item_id_foreign"
+		}),
+	foreignKey({
+			columns: [table.poiPurchaseOrderId],
+			foreignColumns: [purchaseOrders.id],
+			name: "purchase_order_items_poi_purchase_order_id_foreign"
+		}),
+]);
+
+export const sales = pgTable("Sales", {
+	id: uuid().primaryKey().notNull(),
+	salesAmount: numeric("sales_amount", { precision: 8, scale:  2 }).notNull(),
+	salesDate: date("sales_date").notNull(),
+	salesCreatedAt: timestamp("sales_created_at", { mode: 'string' }).notNull(),
+}, (table) => [
+	index("sales_sales_date_index").using("btree", table.salesDate.asc().nullsLast().op("date_ops")),
+]);
+
+export const salesItems = pgTable("Sales_items", {
+	id: uuid().primaryKey().notNull(),
+	siSalesId: uuid("si_sales_id").notNull(),
+	siItemId: uuid("si_item_id").notNull(),
+	siSalePrice: numeric("si_sale_price", { precision: 8, scale:  2 }).notNull(),
+	siItemQty: numeric("si_item_qty", { precision: 8, scale:  2 }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.siItemId],
+			foreignColumns: [items.id],
+			name: "sales_items_si_item_id_foreign"
+		}),
+	foreignKey({
+			columns: [table.siSalesId],
+			foreignColumns: [sales.id],
+			name: "sales_items_si_sales_id_foreign"
+		}),
+]);
+
+export const items = pgTable("Items", {
+	id: uuid().primaryKey().notNull(),
+	itemName: text("item_name").notNull(),
+	itemMinPrice: numeric("item_min_price", { precision: 8, scale:  2 }).notNull(),
+	itemMaxPrice: numeric("item_max_price", { precision: 8, scale:  2 }).notNull(),
+	itemUsecase: text("item_usecase").notNull(),
+	itemLocation: text("item_location").notNull(),
+	itemCurrentAvgCost: numeric("item_current_avg_cost", { precision: 8, scale:  2 }).notNull(),
+	itemImageUrl: text("item_image_url"),
+	itemQrCode: text("item_qr_code"),
+	itemUnitType: varchar("item_unit_type", { length: 255 }).default('piece').notNull(),
+	itemAlternativeNames: json("item_alternative_names").default([]).notNull(),
+	itemCreatedAt: timestamp("item_created_at", { mode: 'string' }).notNull(),
+	itemUpdatedAt: timestamp("item_updated_at", { mode: 'string' }).notNull(),
+	itemQty: numeric("item_qty", { precision: 8, scale:  2 }).notNull(),
+}, (table) => [
+	index("items_item_name_index").using("btree", table.itemName.asc().nullsLast().op("text_ops")),
+	check("Items_item_unit_type_check", sql`(item_unit_type)::text = ANY ((ARRAY['piece'::character varying, 'weight'::character varying])::text[])`),
+]);
+
+export const suppliers = pgTable("Suppliers", {
+	id: uuid().primaryKey().notNull(),
+	supplierName: text("supplier_name").notNull(),
+	supplierItemsSupplied: json("supplier_items_supplied").notNull(),
+	supplierContact: text("supplier_contact").notNull(),
+});
