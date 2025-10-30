@@ -1,28 +1,5 @@
-import { z } from "zod";
-import { baseProcedure, createTRPCRouter } from "../init";
-import { db } from "@/db";
-import { usersTable } from "@/db/schema";
-export const appRouter = createTRPCRouter({
-  hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
-  dotex: baseProcedure.query(async () => {
-    const users = await db.select().from(usersTable);
+import { createTRPCRouter } from "../init";
 
-    if (!users) {
-      return;
-    }
-
-    return users;
-  }),
-});
+export const appRouter = createTRPCRouter({});
 // export type definition of API
 export type AppRouter = typeof appRouter;
