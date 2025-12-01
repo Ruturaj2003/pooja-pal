@@ -1,96 +1,82 @@
-Place holder ReadME
+# Pooja Shop PWA
 
-Pooja Shop PWA
+A full‑stack Progressive Web App (PWA) that transforms a traditional pooja shop into a modern, organized, and efficient digital business. It provides inventory management, order tracking, purchases, payments, analytics, and a QR‑based customer ordering system — with full offline‑first functionality.
 
-Turn your traditional pooja shop into a modern, organized, and efficient business.
+---
 
-A full-stack Progressive Web App (PWA) designed for small pooja shops to manage inventory, sales, purchases, payments, orders, and analytics, while offering a QR-based ordering interface for customers. This project demonstrates Next.js, tRPC, Supabase, IndexedDB, offline-first caching, and modern frontend & backend best practices.
+## Features
 
-Table of Contents
+### Customer
 
-Features
+- Scan a QR code to instantly view the shop catalog
+- Browse items with images, prices, and multilingual names
+- Add items to cart and place orders
+- Orders above ₹500 require shopkeeper confirmation
 
-Tech Stack
+### Shopkeeper
 
-Architecture
+- **Dashboard** with key stats: stock levels, orders, pending payments
+- **Orders Management**: update statuses (Packed → Ready → Completed)
+- **Inventory Management**: add/edit/delete items, low‑stock alerts, storage locations
+- **Sales Tracking**: automatic stock reduction, sales history, customer tracking
+- **Purchases & Suppliers**: record purchases, upload bill photos, track partial payments
+- **Analytics**: profit per item, top‑selling items, monthly trends
+- **QR Code Tools**: generate and scan QR codes for items or boxes
 
-Installation
+### Offline‑First
 
-Usage
+- Works fully without internet
+- IndexedDB stores bill images, offline CRUD operations, and sync queue
+- Auto‑syncs to Supabase when back online
 
-Screenshots / Demo
+---
 
-Future Enhancements
+## Tech Stack
 
-License
+| Layer           | Technology                                 |
+| --------------- | ------------------------------------------ |
+| Frontend        | Next.js, React, TailwindCSS, Recharts      |
+| Backend / API   | tRPC (type‑safe API layer)                 |
+| Database        | Supabase (Postgres)                        |
+| Offline Storage | IndexedDB (idb library)                    |
+| PWA / Caching   | next‑pwa                                   |
+| QR Codes        | qrcode npm library                         |
+| Hosting         | Vercel (Frontend), Supabase (DB & Storage) |
 
-Features
-Customer Side
+---
 
-Scan a QR code to view the shop catalog
+## Architecture
 
-Browse items with images, prices, and multilingual names
+### System Overview
 
-Add items to cart and place orders
-
-Orders above ₹500 prompt shopkeeper confirmation
-
-Shopkeeper Side
-
-Dashboard: Quick overview of stock, orders, and pending payments
-
-Orders Management: Track orders, update status (Packed → Ready → Completed)
-
-Inventory Management: Add/edit/delete items, track quantity & location, low-stock alerts
-
-Sales Tracking: Automatic stock updates, sales history, customer tracking
-
-Purchases & Supplier Management: Add purchases, upload bill photos (stored locally), track pending/partial payments
-
-Analytics / Reports: Profit per item, top-selling items, monthly trends, charts
-
-QR Code Management: Generate and scan QR codes for items or boxes
-
-Offline-first Support:
-
-Updates reflected instantly even without internet
-
-IndexedDB stores bill images, offline changes, and a sync queue
-
-Automatic sync to Supabase when online
-
-Tech Stack
-Layer	Technology
-Frontend	Next.js, TailwindCSS, React, Recharts
-Backend / API	tRPC (Type-safe API layer)
-Database	Supabase (Postgres)
-Offline Storage	IndexedDB (idb library)
-PWA / Offline Caching	next-pwa
-QR Codes	qrcode npm library
-Hosting	Vercel (Frontend), Supabase (DB & Storage)
-Architecture
-
+```
 Customer → Catalog / Orders → Supabase orders table
-
 Shopkeeper → Dashboard → Inventory, Sales, Purchases, Suppliers
+```
 
-Offline-first Layer: IndexedDB for local storage of bill photos, offline CRUD, sync queue
+### Data Flow
 
-Service Worker (next-pwa): Caches static assets and API responses
+```
+flowchart LR
+    Customer -->|Places Order| Supabase
+    Shopkeeper -->|Updates Inventory| Supabase
+    Supabase --> App
+    App -->|Offline| IndexedDB
+    IndexedDB -->|Sync| Supabase
+```
 
-tRPC: Type-safe bridge between Next.js frontend and Supabase backend
+### Key Concepts
 
-Data Flow:
+- IndexedDB stores offline operations & bill images
+- Sync queue processes pending changes once online
+- Service worker caches static assets & API responses
+- tRPC provides type‑safe communication between Next.js and Supabase
 
-Customer places order → stored in Supabase
+---
 
-Shopkeeper updates inventory, records purchases/sales → UI reflects instantly
+## Installation
 
-Offline changes saved to IndexedDB → synced automatically when online
-
-Analytics generated from Supabase data
-
-Installation
+```bash
 # 1. Clone repository
 git clone https://github.com/your-username/pooja-shop-pwa.git
 cd pooja-shop-pwa
@@ -98,52 +84,71 @@ cd pooja-shop-pwa
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment variables
-# Create .env.local
+# 3. Create environment variables file
+cp .env.example .env.local
+
+# Edit .env.local
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # 4. Run locally
 npm run dev
+```
 
-Usage
+Node 18+ recommended.
 
-Customer: Scan QR code → browse catalog → place order
+---
 
-Shopkeeper: Log in → manage inventory, track orders, record purchases & payments → view analytics
+## Usage
 
-Offline Mode: Any updates while offline are stored in IndexedDB and synced automatically when online
+### Customer
 
-Screenshots / Demo
+- Scan QR code
+- Browse catalog
+- Add to cart & place order
 
-(Add screenshots or GIFs demonstrating)
+### Shopkeeper
 
-Customer catalog & ordering interface
+- Log in to dashboard
+- Manage inventory
+- Update order statuses
+- Add purchases & manage payments
+- View analytics
 
-Shopkeeper dashboard & order management
+### Offline Mode
 
-Inventory management & low-stock alerts
+- Perform actions normally — all changes are stored locally
+- Automatic sync triggers when internet is restored
 
-Purchase entry with bill photo upload
+---
 
-Analytics charts and top-selling items
+## Screenshots / Demo
 
-Offline-first workflow (updates reflected without internet)
+(Place your screenshots in `/screenshots` and reference them here.)
 
-Live Demo: [Add Vercel link here]
+- Customer catalog view
+- Shopkeeper dashboard
+- Order management flow
+- Inventory editor
+- Purchase entry with bill photo upload
+- Analytics charts
+- Offline workflow
 
-Future Enhancements
+Live Demo: _Add Vercel deployment link here_
 
-Multi-language interface for customer & staff
+---
 
-Export reports as CSV/PDF
+## Future Enhancements
 
-Notifications for low-stock items or pending payments
+- Multi‑language UI for both customer & staff
+- Export reports as CSV/PDF
+- Notifications for low‑stock or pending payments
+- Staff roles & permissions
+- Cloud backup for bill images while preserving offline‑first behavior
+- Improved caching strategies
 
-Multi-user shopkeeper/staff login roles
+---
 
-Cloud backup for bill images while keeping offline-first support
+## License
 
-License
-
-This project is MIT Licensed — free to use, modify, and showcase in your portfolio.
+MIT License — free to use, modify, and integrate into your portfolio.
